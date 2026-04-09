@@ -1,0 +1,113 @@
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: #0f172a; 
+    color: #e2e8f0; 
+    margin: 0; 
+    padding: 15px; 
+    display: flex; 
+    justify-content: center; 
+}
+
+.container { width: 100%; max-width: 450px; }
+
+/* Buyurtma tanlash tugmalari */
+.order-buttons-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.order-select-btn {
+    background: #1e293b;
+    color: white;
+    border: 1px solid #334155;
+    padding: 18px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.order-select-btn:active {
+    background: #3b82f6;
+    transform: scale(0.97);
+}
+
+/* Balans kartasi */
+.balance-card { 
+    background: #1e293b; 
+    border-radius: 12px; 
+    padding: 15px 5px; 
+    margin-top: 20px;
+    margin-bottom: 15px; 
+    display: flex; 
+    justify-content: space-around; 
+    border: 1px solid #334155; 
+}
+
+.bal-item { display: flex; flex-direction: column; text-align: center; }
+.bal-item span { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; }
+.bal-item b { font-size: 0.85rem; margin-top: 4px; }
+
+/* Asosiy Card */
+.card { 
+    background: #1e293b; 
+    border-radius: 16px; 
+    padding: 20px; 
+    border: 1px solid #334155; 
+}
+
+.card-header h3 { margin: 0; font-size: 1.1rem; color: #3b82f6; }
+.card-header p { margin: 5px 0 15px 0; font-size: 0.8rem; color: #94a3b8; }
+
+.status-grid { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px; 
+}
+
+/* Status Elementlari */
+.status-item { 
+    padding: 12px 5px; 
+    border-radius: 10px; 
+    text-align: center; 
+    font-weight: bold; 
+    height: 55px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.step-name { font-size: 0.65rem; margin-bottom: 5px; opacity: 0.8; }
+.step-info-container { position: relative; height: 18px; display: flex; justify-content: center; }
+.step-value { position: absolute; font-size: 0.8rem; opacity: 0; transform: translateY(8px); transition: all 0.4s ease; }
+.step-value.active { opacity: 1; transform: translateY(0); }
+
+/* Ranglar */
+.done { background-color: #064e3b; color: #a7f3d0; border: 1px solid #059669; }
+.process { background-color: #78350f; color: #fde68a; border: 1px solid #d97706; animation: pulse 2s infinite; }
+.waiting { background-color: #450a0a; color: #fecaca; border: 1px solid #dc2626; }
+
+/* Fayl Tugmalari */
+.file-btn {
+    display: block;
+    background: #334155;
+    color: #f8fafc;
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #475569;
+}
+
+.file-btn:active { background: #475569; }
+
+/* Animatsiyalar */
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+.animate-in { animation: slideUp 0.4s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }

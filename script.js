@@ -1,16 +1,16 @@
 const urlParams = new URLSearchParams(window.location.search);
-const userPhone = urlParams.get('tg_id');
+const userTgId = urlParams.get('tg_id'); // Telegram ID ni URL dan olamiz
 
-// 1. Saytdan keladigan murakkab JSONni bizning Mini App tushunadigan formatga o'tkazish
+// 1. Serverdan keladigan JSONni formatlash
 function transformData(apiResponse) {
-    if (!apiResponse || apiResponse.status !== "success") return [];
+    // API javobi muvaffaqiyatli ekanini tekshirish
+    if (!apiResponse || (apiResponse.status !== "success" && !apiResponse.factory_name)) return [];
 
     return apiResponse.order_matrix.map(order => {
-        // Har bir post (Arra, Kromka...) bo'yicha ma'lumotlarni yig'amiz
         const steps = Object.keys(order.post_data).map(postName => {
             const item = order.post_data[postName];
             
-            // Foizni hisoblash: (Bajarilgan / Plan) * 100
+            // Foizni hisoblash
             let percentVal = 0;
             if (item.volume_plan > 0) {
                 percentVal = Math.round((item.volume_value / item.volume_plan) * 100);
@@ -35,54 +35,43 @@ function transformData(apiResponse) {
             order_name: order.order_title,
             date: order.deadline,
             factory: apiResponse.factory_name,
-            // Balans hozircha API'da yo'q, shuning uchun vaqtincha default qiymat
             balance: { total: "Noma'lum", paid: "0", debt: "0" },
             steps: steps,
-            files: [] // Kelajakda fayllar qo'shilsa shu yerga tushadi
+            files: []
         };
     });
 }
 
-// 2. Ma'lumotlarni yuklash (Fetch)
+// 2. Ma'lumotlarni yuklash (Real API bilan)
 async function loadData() {
     const container = document.getElementById('order-list');
+    if (!userTgId) {
+        container.innerHTML = "<p style='text-align:center; color:orange;'>Telegram ID topilmadi.</p>";
+        return;
+    }
 
     try {
-        // Real API ishga tushganda quyidagi qism ishlaydi:
-        /*
+        // Real API ga so'rov yuboramiz
         const response = await fetch('https://staging.mespro.uz/api/v1/bot/get-contractor-data/', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 'X-API-KEY': 'baad3b85-fa44-4e1f-8efb-832793368d6d'
             },
-            body: JSON.stringify({ tg_id: 6101533294 }) // Bu yerda tg_id ishlatiladi
+            body: JSON.stringify({ tg_id: userTgId }) 
         });
+
         const apiData = await response.json();
-        */
 
-        // HOZIRCHA: Siz yuborgan namunaviy JSON bilan ishlash (Test uchun)
-        const mockApiResponse = {
-            "status": "success",
-            "factory_name": "Smart Factory LLC",
-            "order_matrix": [
-                {
-                    "order_id": 16,
-                    "order_title": "№42 / 1 ",
-                    "deadline": "07.04.2026",
-                    "post_data": {
-                        "Arra": { "volume_plan": 1.26, "volume_value": 0.5, "qty_plan": 1, "qty_value": 0, "unit": "m2" },
-                        "Kromka": { "volume_plan": 2.13, "volume_value": 2.13, "qty_plan": 1, "qty_value": 1, "unit": "m2" },
-                        "Upakovka": { "volume_plan": 1.0, "volume_value": 0.0, "qty_plan": 1, "qty_value": 0, "unit": "m2" }
-                    }
-                }
-            ]
-        };
-
-        const orders = transformData(mockApiResponse);
+        // TEST MA'LUMOTLAR OLIB TASHLANDI - Endi faqat apiData ishlatiladi
+        const orders = transformData(apiData);
 
         if (orders.length === 0) {
-            container.innerHTML = "<p style='text-align:center;'>Buyurtmalar topilmadi.</p>";
+            container.innerHTML = `
+                <div style='text-align:center; padding:20px;'>
+                    <p style='color:#94a3b8;'>Buyurtmalar topilmadi.</p>
+                    <small style='color:#64748b;'>ID: ${userTgId}</small>
+                </div>`;
         } else if (orders.length === 1) {
             renderOrderDetail(orders[0]);
         } else {
@@ -91,11 +80,11 @@ async function loadData() {
 
     } catch (error) {
         console.error("Xatolik:", error);
-        container.innerHTML = "<p style='color:red;'>Ma'lumot yuklashda xatolik yuz berdi.</p>";
+        container.innerHTML = "<p style='color:red; text-align:center;'>Server bilan bog'lanishda xatolik yuz berdi.</p>";
     }
 }
 
-// 3. Ro'yxatni chiqarish
+// 3. Ro'yxatni chiqarish (O'zgarishsiz qoldi)
 function renderOrderList(orders) {
     const container = document.getElementById('order-list');
     container.innerHTML = `
@@ -110,7 +99,7 @@ function renderOrderList(orders) {
     `;
 }
 
-// 4. Detallarni chiqarish
+// 4. Detallarni chiqarish (O'zgarishsiz qoldi)
 let animationInterval;
 function renderOrderDetail(order) {
     const container = document.getElementById('order-list');
@@ -136,7 +125,7 @@ function renderOrderDetail(order) {
             <div class="card-header"><h3>${order.order_name}</h3></div>
             <div class="status-grid">${stepsHtml}</div>
         </div>
-        <button onclick="loadData()" style="width:100%; margin-top:20px; background:none; border:1px solid #334155; color:#94a3b8; padding:10px; border-radius:10px;">⬅ Orqaga qaytish</button>
+        <button onclick="loadData()" style="width:100%; margin-top:20px; background:none; border:1px solid #334155; color:#94a3b8; padding:10px; border-radius:10px; cursor:pointer;">⬅ Orqaga qaytish</button>
     `;
 
     startAnimation(order.steps.length);
